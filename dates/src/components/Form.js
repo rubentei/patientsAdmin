@@ -1,8 +1,10 @@
 import React, { Fragment, useState } from 'react';
+import uuid from 'uuid/dist/v4';
+import PropTypes from 'prop-types';
 
-const Form = () => {
+const Form = ({createDate}) => {
 
-    // Create date state
+    // Create dates state
     const [petDate, updateDate] = useState({
         pet: '',
         owner: '',
@@ -10,6 +12,9 @@ const Form = () => {
         hour: '',
         symptoms: ''
     });
+
+    // Create 
+    const [error, updateError] = useState(false);
 
     // Function activated each time user type something
     const handleChange = e => {
@@ -22,11 +27,46 @@ const Form = () => {
     // Extract values
     const { pet, owner, date, hour, symptoms } = petDate;
 
+    // User submits form
+    const submitDate = e => {
+        e.preventDefault();
+
+        // Validate
+        if(pet.trim() === '' || owner.trim() === '' ||
+          date.trim() === '' || hour.trim() === '' ||
+          symptoms.trim() === '') {
+            updateError(true);
+            return;
+        }
+
+        // Remove alert message
+        updateError(false);
+
+        // Assign ID
+        petDate.id = uuid();
+
+        // Create date
+        createDate(petDate);
+
+        // Clean form
+        updateDate({
+            pet: '',
+            owner: '',
+            date: '',
+            hour: '',
+            symptoms: ''
+        })
+
+    }
+
     return (
         <Fragment>
             <h2>Crear Cita</h2>
 
-            <form>
+            { error ? <p className="alerta-error">Todos los campos son obligatorios</p> : null}
+            <form
+                onSubmit={submitDate}
+            >
                 <label>Nombre Mascota</label>
                 <input
                     type="text"
@@ -82,5 +122,9 @@ const Form = () => {
         </Fragment>
       );
 }
- 
+
+Form.propTypes = {
+    createDate: PropTypes.func.isRequired
+}
+
 export default Form;
